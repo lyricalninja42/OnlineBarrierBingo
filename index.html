@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Barrier Bingo</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  h2 { margin-bottom: 10px; }
+  .grid { display: flex; flex-wrap: wrap; width: 850px; }
+  .cell {
+    width: 220px; height: 80px; margin: 5px;
+    border: 2px solid #333; display: flex;
+    align-items: center; justify-content: center;
+    text-align: center; cursor: pointer;
+    position: relative;
+    transition: background 0.3s;
+  }
+  .cell .count {
+    position: absolute; bottom: 2px; right: 5px;
+    font-size: 12px; color: #555;
+  }
+  .selected { background: #90ee90; }
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<h2>Barrier Bingo</h2>
+<div class="grid" id="grid"></div>
+<button onclick="submitSelections()">Submit</button>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyC4J0OqA2g4GnE__3MsE6Ekk8F67jX500M",
+    authDomain: "barrier-bingo.firebaseapp.com",
+    projectId: "barrier-bingo",
+    storageBucket: "barrier-bingo.firebasestorage.app",
+    messagingSenderId: "741462116406",
+    appId: "1:741462116406:web:261185827d04d329b97097",
+    measurementId: "G-170LNLSJ9S"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  const barriers = [
+    "Couldn’t afford unpaid jobs",
+    "Didn’t have transportation",
+    "No quiet space or internet",
+    "Full-time hours I couldn’t manage",
+    "Felt like I didn’t belong",
+    "Thought I wasn’t qualified",
+    "Didn’t want to ask for help",
+    "Imposter syndrome",
+    "Afraid to ask questions",
+    "Nervous about networking",
+    "Faced discrimination",
+    "Worried my accent",
+    "No leaders looked like me",
+    "Application was confusing",
+    "Only given busywork",
+    "Workspace not accessible",
+    "No one explained accommodations",
+    "Job postings were vague",
+    "Mental health barriers",
+    "Employer broke promises",
+    "Didn’t know university resources",
+    "Didn’t see link to my major",
+    "Felt isolated as only student",
+    "Never asked about career paths",
+    "Didn’t know careers in my major"
+  ];
+
+  const grid = document.getElementById('grid');
+  const selected = new Set();
+
+  // Create clickable cells
+  barriers.forEach(barrier => {
+    const div = document.createElement('div');
+    div.className = 'cell';
+    div.innerHTML = `<span class="label">${barrier}</span><div class="count">0</div>`;
+    div.onclick = () => {
+      if (selected.has(barrier)) {
+        selected.delete(barrier);
+        div.classList.remove('selected');
+      } else {
+        selected.add(barrier);
+        div.classList.add('selected');
+      }
+    };
+    grid.appendChild(div);
+
+    // Live listener for counts
+    const ref = db.collection('barrierVotes').doc(barrier);
+    ref.onSnapshot(doc => {
+      const data = doc.data();
+      const count = data ? data.count : 0;
+      div.querySelector('.count').textContent = count;
+    });
+  });
+
+  async function submitSelections() {
+    const batch = db.batch();
+    selected.forEach(barrier => {
+      const ref = db.collection('barrierVotes').doc(barrier);
+      batch.set(ref, { count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
+    });
+    await batch.commit();
+    alert("Thanks for submitting!");
+
+    // Reset selections
+    selected.clear();
+    document.querySelectorAll('.cell').forEach(div => div.classList.remove('selected'));
+  }
+</script>
+
+</body>
+</html>
