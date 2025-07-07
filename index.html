@@ -3,23 +3,76 @@
 <head>
 <meta charset="UTF-8" />
 <title>Barrier Bingo</title>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya&display=swap" rel="stylesheet">
 <style>
-  body { font-family: Arial, sans-serif; margin: 20px; }
-  h2 { margin-bottom: 10px; }
-  .grid { display: flex; flex-wrap: wrap; width: 850px; }
+  body {
+    font-family: 'Alegreya', serif;
+    background-color: #ead1dcff;
+    color: black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+  }
+  h2 {
+    margin-bottom: 20px;
+    font-size: 2.5em;
+  }
+  .grid {
+    background: white;
+    border: 2px solid black;
+    padding: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1000px;
+    min-height: 300px;
+    box-sizing: border-box;
+  }
   .cell {
-    width: 220px; height: 80px; margin: 5px;
-    border: 2px solid #333; display: flex;
-    align-items: center; justify-content: center;
-    text-align: center; cursor: pointer;
+    background: white;
+    width: 220px;
+    height: 80px;
+    margin: 5px;
+    border: 2px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
     position: relative;
     transition: background 0.3s;
   }
   .cell .count {
-    position: absolute; bottom: 2px; right: 5px;
-    font-size: 12px; color: #555;
+    position: absolute;
+    bottom: 2px;
+    right: 5px;
+    font-size: 12px;
+    color: #555;
   }
-  .selected { background: #90ee90; }
+  .selected {
+    background: #90ee90;
+  }
+  button {
+    margin-top: 30px;
+    padding: 15px 40px;
+    font-size: 1.2em;
+    background: white;
+    border: 2px solid black;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  button:hover {
+    background: #f0f0f0;
+  }
+  #thankyou {
+    display: none;
+    font-size: 2.5em;
+    text-align: center;
+  }
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -29,6 +82,8 @@
 <h2>Barrier Bingo</h2>
 <div class="grid" id="grid"></div>
 <button onclick="submitSelections()">Submit</button>
+
+<div id="thankyou">Thanks for submitting!</div>
 
 <script>
   const firebaseConfig = {
@@ -40,8 +95,6 @@
     appId: "1:741462116406:web:261185827d04d329b97097",
     measurementId: "G-170LNLSJ9S"
   };
-
-  // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
@@ -76,7 +129,6 @@
   const grid = document.getElementById('grid');
   const selected = new Set();
 
-  // Create clickable cells
   barriers.forEach(barrier => {
     const div = document.createElement('div');
     div.className = 'cell';
@@ -92,7 +144,6 @@
     };
     grid.appendChild(div);
 
-    // Live listener for counts
     const ref = db.collection('barrierVotes').doc(barrier);
     ref.onSnapshot(doc => {
       const data = doc.data();
@@ -108,11 +159,12 @@
       batch.set(ref, { count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
     });
     await batch.commit();
-    alert("Thanks for submitting!");
 
-    // Reset selections
-    selected.clear();
-    document.querySelectorAll('.cell').forEach(div => div.classList.remove('selected'));
+    // Hide the grid & button, show thanks
+    document.querySelector('h2').style.display = 'none';
+    grid.style.display = 'none';
+    document.querySelector('button').style.display = 'none';
+    document.getElementById('thankyou').style.display = 'block';
   }
 </script>
 
