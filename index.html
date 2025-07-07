@@ -35,7 +35,7 @@
   .cell {
     background: white;
     width: 220px;
-    min-height: 80px;
+    height: 80px;
     margin: 5px;
     border: 2px solid black;
     display: flex;
@@ -45,10 +45,6 @@
     cursor: pointer;
     position: relative;
     transition: background 0.3s;
-    word-wrap: break-word;
-    white-space: normal;
-    padding: 10px;
-    box-sizing: border-box;
   }
   .cell .count {
     position: absolute;
@@ -161,15 +157,12 @@
     grid.appendChild(div);
 
     const ref = db.collection('barrierVotes').doc(barrier);
-    ref.onSnapshot(async doc => {
-      if (!doc.exists) {
-        await ref.set({ count: 0 });
-        div.querySelector('.count').textContent = 0;
-      } else {
-        div.querySelector('.count').textContent = doc.data().count;
-      }
+    ref.onSnapshot(doc => {
+      const data = doc.data();
+      const count = data ? data.count : 0;
+      div.querySelector('.count').textContent = count;
     });
-  }); 
+  });
 
   async function submitSelections() {
     const batch = db.batch();
