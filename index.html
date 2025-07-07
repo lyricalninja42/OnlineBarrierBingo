@@ -70,8 +70,22 @@
   }
   #thankyou {
     display: none;
-    font-size: 2.5em;
-    text-align: center;
+    flex-direction: column;
+    align-items: center;
+  }
+  #thankyou h3 {
+    font-size: 2em;
+    margin-bottom: 20px;
+  }
+  textarea {
+    width: 400px;
+    height: 100px;
+    font-family: 'Alegreya', serif;
+    font-size: 1.1em;
+    padding: 10px;
+    border: 2px solid black;
+    resize: vertical;
+    margin-bottom: 20px;
   }
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -83,7 +97,12 @@
 <div class="grid" id="grid"></div>
 <button onclick="submitSelections()">Submit</button>
 
-<div id="thankyou">Thanks for submitting!</div>
+<div id="thankyou">
+  <h3>Thanks for submitting!</h3>
+  <p>Any other barriers we missed?</p>
+  <textarea id="otherBarrierInput" placeholder="Type here..."></textarea>
+  <button onclick="submitOtherBarrier()">Submit Additional Barrier</button>
+</div>
 
 <script>
   const firebaseConfig = {
@@ -160,11 +179,22 @@
     });
     await batch.commit();
 
-    // Hide the grid & button, show thanks
     document.querySelector('h2').style.display = 'none';
     grid.style.display = 'none';
     document.querySelector('button').style.display = 'none';
-    document.getElementById('thankyou').style.display = 'block';
+    document.getElementById('thankyou').style.display = 'flex';
+  }
+
+  async function submitOtherBarrier() {
+    const text = document.getElementById('otherBarrierInput').value.trim();
+    if (text) {
+      await db.collection('otherBarriers').add({
+        text: text,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      alert("Thanks! Your additional barrier was submitted.");
+      document.getElementById('otherBarrierInput').value = '';
+    }
   }
 </script>
 
