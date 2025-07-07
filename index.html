@@ -32,20 +32,24 @@
     min-height: 300px;
     box-sizing: border-box;
   }
-  .cell {
-    background: white;
-    width: 220px;
-    height: 80px;
-    margin: 5px;
-    border: 2px solid black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    cursor: pointer;
-    position: relative;
-    transition: background 0.3s;
-  }
+.cell {
+  background: white;
+  width: 220px;
+  min-height: 80px; 
+  margin: 5px;
+  border: 2px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.3s;
+  word-wrap: break-word;
+  white-space: normal;
+  padding: 10px;
+  box-sizing: border-box;
+}
   .cell .count {
     position: absolute;
     bottom: 2px;
